@@ -1,15 +1,10 @@
 import { answers, validGuesses } from "./dict.js"
-import { isLetter } from "./utility.js"
+import { isLetter, getEmptyGuess } from "./utility.js"
 import { State } from "./constants.js"
+import * as cookie from "./cookie.js"
 
-var guessCount = 10
 var letterCount = 5
 var answer = answers[Math.floor(Math.random()*answers.length)].toUpperCase();
-
-var guesses = []
-for (var i = 0; i < guessCount; i++) {
-    guesses.push({id: i, text: '', states: Array(letterCount).fill(State.Pending) })
-}
 
 Vue.component('grordle-cell', {
     props: ['letter', 'state'],
@@ -41,7 +36,7 @@ var board = new Vue({
     el: '#grordle-board',
     data: {
         activeRow: 0,
-        guesses: guesses,
+        guesses: [getEmptyGuess(0, letterCount), getEmptyGuess(1, letterCount)],
     },
     methods: {
         addLetter: function (letter) {
@@ -69,6 +64,7 @@ var board = new Vue({
 
                 this.guesses[this.activeRow].states = states
                 this.activeRow++
+                this.guesses.push(getEmptyGuess(this.activeRow + 1, letterCount))
             }
         }
     },
@@ -87,6 +83,23 @@ var board = new Vue({
         }
     }
 })
+
+var modal = new Vue({
+    el: '#modal',
+    data: {
+        title: 'hello'
+    },
+    methods: {
+        show: function() {
+            (new bootstrap.Modal(document.getElementById('modal'), {})).show()
+        }
+    }
+})
+
+if (cookie.getHasVisited() != 'true') {
+    cookie.setHasVisited()
+    modal.show()
+}
 
 document.onkeydown = function (e) {
     e = e || window.event;
