@@ -1,0 +1,33 @@
+html,
+body {
+  height: 100%
+}
+
+div.grordle-cell {
+    border: 1px solid #1c1c1c;
+    height: 50px;
+    width: 50px;
+    margin: 10px;
+    border-radius: 3px;
+    text-align: center;
+    font-size: 30px;
+    color: #1c1c1c;
+}
+
+div.present-cell {
+  background-color: #ebe134;
+}
+
+div.absent-cell {
+  background-color: black;
+  color: white;
+}
+
+div.correct-cell {
+  background-color: #3c9431;
+  color: #1c1c1c;
+}
+
+.btn { 
+  margin-top: 50px
+}
