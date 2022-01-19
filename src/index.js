@@ -32,6 +32,28 @@ Vue.component('grordle-row', {
 </div>`
 })
 
+Vue.component('hidden-input', {
+    template: `<input v-on:keyup.enter="submit" v-on:keyup="typed" v-on:blur="getFocus" style="position:fixed;left:-2000px">`,
+    methods: {
+        submit: function() {
+            var accepted = this.$parent.makeGuess()
+            if (accepted) {
+                this.$el.value = ''
+            }
+        },
+        typed: function() {
+            this.$parent.setValue(this.$el.value)
+        },
+        getFocus: function() {
+            this.$el.focus()
+            this.$el.click()
+        }
+    },
+    mounted: function () {
+      this.getFocus()
+    }
+})
+
 var board = new Vue({
     el: '#grordle-board',
     data: {
@@ -39,15 +61,13 @@ var board = new Vue({
         guesses: [getEmptyGuess(0, letterCount), getEmptyGuess(1, letterCount)],
     },
     methods: {
-        addLetter: function (letter) {
-            if (this.guesses[this.activeRow].text.length < letterCount) {
-                this.guesses[this.activeRow].text += letter
+        setValue: function(value) {
+            if (value.length <= letterCount) {
+                this.guesses[this.activeRow].text = value.toUpperCase()
             }
         },
-        removeLetter: function () {
-            this.guesses[this.activeRow].text = this.guesses[this.activeRow].text.slice(0, -1)
-        },
         makeGuess: function () {
+            var accepted = false
             var guess = this.guesses[this.activeRow].text
             if (this.isValid) {
                 var states = []
@@ -65,7 +85,10 @@ var board = new Vue({
                 this.guesses[this.activeRow].states = states
                 this.activeRow++
                 this.guesses.push(getEmptyGuess(this.activeRow + 1, letterCount))
+                accepted = true
             }
+
+            return accepted
         }
     },
     computed: {
@@ -87,28 +110,20 @@ var board = new Vue({
 var modal = new Vue({
     el: '#modal',
     data: {
-        title: 'hello'
+        title: '',
+        text: ''
     },
     methods: {
-        show: function() {
-            (new bootstrap.Modal(document.getElementById('modal'), {})).show()
+        show: function(title, text) {
+            this.title = title
+            this.text = text
+            var modal = new bootstrap.Modal(document.getElementById('modal'), {})
+            modal.show()
         }
     }
 })
 
-if (cookie.getHasVisited() != 'true') {
-    cookie.setHasVisited()
-    modal.show()
-}
-
-document.onkeydown = function (e) {
-    e = e || window.event;
-    
-    if (e.key == 'Enter') {
-        board.makeGuess()
-    } else if (e.key == 'Backspace') {
-        board.removeLetter()
-    } else if (isLetter(e.key)) {
-        board.addLetter(e.key.toUpperCase())
-    }
-};
+// if (cookie.getHasVisited() != 'true') {
+//     cookie.setHasVisited()
+//     modal.show('Welcome', 'Thanks for playing! ')
+// }
